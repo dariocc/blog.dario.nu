@@ -1,0 +1,16 @@
+baseURL = "http://codigoergosum.com/"
+languageCode = "en-en"
+title = "Código ergo sum"
+theme = "hugotex"
+DefaultContentLanguage = "es-es"
+
+[author]
+name = "Darío Cutillas Carrillo"
+abstract = "I code therefore I am"
+
+[taxonomies]
+cateogry = "categories"
+tag = "tags"
+series = "series"
+
+
