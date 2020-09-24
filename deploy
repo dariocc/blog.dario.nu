@@ -1,0 +1,4 @@
+#!/bin/bash
+
+hugo
+$(npm bin)/netlify deploy --prod --dir public
