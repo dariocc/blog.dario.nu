@@ -1,12 +1,12 @@
-baseURL = "http://codigoergosum.com/"
+baseURL = "http://blog.dario.nu/"
 languageCode = "en-en"
-title = "Código ergo sum"
+title = "blog.dario.nu"
 theme = "hugotex"
 DefaultContentLanguage = "en-us"
 
 [author]
 name = "Darío Cutillas Carrillo"
-abstract = "Software engineer"
+abstract = "Unpretentious thoughts of a Software Engineer"
 
 [taxonomies]
 category = "categories"
