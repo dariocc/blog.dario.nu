@@ -1,12 +1,13 @@
 ---
 title: "Using GnuPG with a smart card for SSH-authentication"
-date: 2020-09-28T23:46:04+02:00
+date: 2020-09-20T23:46:04+02:00
 draft: false
+tags: [GnuPG, Ciber-Security]
 ---
 
 == GnuPG & smart cards
 
-The GnuPG suite supports the use of OpenPGP smart cards,  hardware devices 
+GnuPG supports the use of OpenPGP smart cards, hardware devices 
 that can perform cryptographic operations. One of the useful things a
 OpenPGP smart card can do is to store private keys of your PGP key-pairs.
 
@@ -52,9 +53,8 @@ convenient than storing private keys in your computer.
 
 That was the why, the next sections explains the how.
 
-NOTE: GnuPG version 2.2.0 was used for the steps in this article.
-
 == Using OpenPGP smart cards in GnuPG and Linux
+
 
 First, we'll need the `pcscd` tool, which is a daemon that applications
 such as GnuPG use to communicate with smart cards readers.
@@ -83,6 +83,11 @@ This tells me that I have two smart card reader ports. The first one corresponds
 to the reader integrated in my computer, the second one to the YubiKey.
 Take note of the smart card Reader name that you'll be using, we will use
 it soon. 
+
+NOTE: I'm assuming you have GnuPG installed. Version 2.2.0 was used for writing
+this article. Some systems might have both GnuPG 1.x and GnuPG 2.x installed
+and have two different binaries `gpg` and `gpg2`, but in my distribution both
+names refer to the same GnuPG version 2 software. 
 
 Edit or create the `scdaemon.conf` file in your GnuPG home directory
 (`~/.gnupg/scdaemon.conf by default`), and append the name of the reader you'll
@@ -179,7 +184,7 @@ cryptographic operations. My choice is in this case RSA 4096, it should be noted
 that not all smart cards support keysizes of more than 2048bits. The YubiKey 5 series
 does however.
 
-== Idiosyncracies of storing keys in OpenPGP smart cards
+== Limitations of OpenPGP smart cards
 
 A OpenPGP smart card has 3 slots for storing private keys.
 Remember the output of the `gpg --card-status` command. It  contained following lines:
@@ -413,5 +418,5 @@ of it and how to import keys in it. We saw how to configure OpenSSH to use authe
 subkeys of GnuPG. 
 
 GnuPG takes time to learn so don't be disencouraged. Hopefully you found this article
-helpful. If you have questions you find how to contact me in the <<about>> section.
+helpful. If you have questions feel free to <<../../about/index.adoc#,contact me>>.
 

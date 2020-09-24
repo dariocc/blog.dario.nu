@@ -2,15 +2,14 @@ baseURL = "http://codigoergosum.com/"
 languageCode = "en-en"
 title = "Código ergo sum"
 theme = "hugotex"
-DefaultContentLanguage = "es-es"
+DefaultContentLanguage = "en-us"
 
 [author]
 name = "Darío Cutillas Carrillo"
-abstract = "I code therefore I am"
+abstract = "Software engineer"
 
 [taxonomies]
-cateogry = "categories"
+category = "categories"
 tag = "tags"
 series = "series"
-
 
