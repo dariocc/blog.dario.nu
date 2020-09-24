@@ -1,6 +1,6 @@
 ---
 title: "Using GnuPG with a smart card for SSH-authentication"
-date: 2020-09-20T23:46:04+02:00
+date: 2020-09-20T22:00:00+02:00
 draft: false
 tags: [gpg, ssh, pgp]
 categories: ["Cibersecurity"]

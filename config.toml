@@ -9,8 +9,7 @@ category = "categories"
 language = "languages"
 
 [params]
-subtitle = "Unpretentious thoughts of a Software Engineer"
-dateFmt ="2020.10.01 15:00"
+subtitle = "Thoughts of a software engineer"
 
 [menu]
 [[menu.main]]
