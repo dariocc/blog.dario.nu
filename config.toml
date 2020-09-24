@@ -1,15 +1,37 @@
-baseURL = "http://blog.dario.nu/"
 languageCode = "en-en"
 title = "blog.dario.nu"
-theme = "hugotex"
+theme = "smol"
 DefaultContentLanguage = "en-us"
 
-[author]
-name = "Darío Cutillas Carrillo"
-abstract = "Unpretentious thoughts of a Software Engineer"
-
 [taxonomies]
-category = "categories"
 tag = "tags"
-series = "series"
+category = "categories"
+language = "languages"
 
+[params]
+subtitle = "Unpretentious thoughts of a Software Engineer"
+dateFmt ="2020.10.01 15:00"
+
+[menu]
+[[menu.main]]
+identifier = "posts"
+name = "Posts"
+url = "/posts/"
+weight = 1
+
+[[menu.main]]
+identifier = "categories"
+name = "Categories"
+url = "/categories/"
+weight = 2
+
+[[menu.main]]
+identifier = "tags"
+name = "Tags"
+url = "/tags/"
+weight = 3
+
+[[menu.footer]]
+name = "Bitbucket"
+url = "https://bitbucket.org/dacucar"
+weight = 1
