@@ -1,4 +1,24 @@
-#!/bin/bash
+#!/bin/sh
 
-hugo
-$(npm bin)/netlify deploy --prod --dir public
+set -u
+
+_die() {
+    printf "$1\n"
+    exit 1
+}
+
+_HUGO=$(command -v hugo) || _die "hugo command not found. Is hugo installed?"
+_NPM=$(command -v npm) || _die "npm command not found. Is Node.js installed?"
+_GPG=$(command -v gpg) || _die "gpg command not found."
+
+# == Build site
+
+("$_HUGO") || _die "Failed to generate site."
+
+# == Deploy
+
+_TOKEN_FILE=netlify.token
+"$($_NPM bin)"/netlify deploy \
+    --prod --dir public \
+    --auth "$($_GPG --decrypt $_TOKEN_FILE)" \
+    || _die "Failed to deploy site."

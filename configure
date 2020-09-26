@@ -1,0 +1,10 @@
+#!/bin/sh
+
+_die () {
+    printf "$1\n"
+    exit 1
+}
+
+_NPM=$(command -v npm) || _die "npm not found. Is Node.js installed?"
+
+"$_NPM" install netlify-cli
