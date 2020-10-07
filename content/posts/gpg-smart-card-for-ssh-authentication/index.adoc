@@ -1,5 +1,5 @@
 ---
-title: "Using GnuPG with a smart card for SSH-authentication"
+title: "Using GnuPG with a smart card"
 date: 2020-09-20T22:00:00+02:00
 draft: false
 tags: [gpg, ssh, pgp]
@@ -9,54 +9,44 @@ languages: [en]
 
 == GnuPG & smart cards
 
-GnuPG supports the use of OpenPGP smart cards, hardware devices 
-that can perform cryptographic operations. One of the useful things a
-OpenPGP smart card can do is to store private keys of your PGP key-pairs.
+GnuPG supports the use of OpenPGP smart cards: hardware devices 
+with the ability to store the private key of PGP key-pairs and
+use them during cryptographic operations. 
 
-There are several reasons why you'd want to have private keys in a smart card
-as opposed to having them in your computer.
+Storing private keys in a smart card is considerably more secure
+than storing them in your computer given that you reduce the surface
+of attack: an smart card is not connected to internet as your computer
+is, nor is subject to spoofing attacks or can be subject to OS 
+vulnerabilities.
 
-Your computer is likely to be part of a network, most likely connected to 
-the internet. This represents a bigger risk, because vulnerabilities in OS, 
-software, etc. may end-up making it possible for an attacker to access your 
-private key. If this happens, your only hope is that your private key is 
-protected by a passphrase and that passphrase shall be strong enough to hold
-a cryptographic attack. 
+OpenPGP smart cards have a number of characteristics that
+make them the perfect media to store private keys. Namely:
 
-By moving the private keys to a OpenPGP smart card you remove this 
-possibility. How is this different from storing the private key in
-a say, commonly used media storage devices? Here there is the trick: a 
-smart card has, by design, three important characteristic that typical 
-media storage devices lack:
+- The keys never leaves the smart card device. Once written
+  private keys cannot be externally accessed. No one will be able
+  to make a copy of your key.
 
-- The private key never leaves the smart card device. Once written,
-  the private key cannot be extracted from the smart card.
-- Because of the previous characteristic, _cryptographic operations occur 
-  inside the smart card device_. GnuPG won't ask for the _private key_
-  but rather will ask the key to carry out some cryptographic operation.
+- Cryptographic operations occur inside the smart card device, i.e.
+  the _maths_ is happening inside the card.
+
 - The private information stored in the key is protected by a pin-code
-  with a limited number of retry attempts, meaning: brute-force attacks
-  are not possible.
-- Smart card devices are designed to be tamper-proof. Even when an 
-  unauthorized person has access to the physical device, she cannot
-  access the private information stored within them.
+  with a limited number of retry attempts. After a number of unsuccessful
+  pin introduction the secret information contained in the card 
+  is destroyed.
 
-You might have guessed by now, but a smart card is not a simple _memory
-chip_, they have a full embedded microprocessor which allow them to do
-all the above things.
+- Smart card devices are designed to be tamper-proof. Even when an 
+  unauthorized person has access to the physical device, she won't be able
+  to access the secrets inside it.
 
 Having keys stored in a smart card device has also the benefit of portability:
 you can take your keys with you and use them safely in whichever computer
 you need to do. Some of the cards offer NFC capabilities which make it 
-easy to use with for example, a smart-phone.
+easy to use with a smart-phone.
 
 In short using a OpenPGP smart card is both more secure and more
 convenient than storing private keys in your computer.
 
-That was the why, the next sections explains the how.
-
 == Using OpenPGP smart cards in GnuPG and Linux
-
 
 First, we'll need the `pcscd` tool, which is a daemon that applications
 such as GnuPG use to communicate with smart cards readers.
@@ -71,7 +61,7 @@ Several manufacturers produce OpenPGP SmartCard devices and they may be
 sold in a card-form factor (similar to a credit card) or as a USB hardware 
 device. For this test I'm using a YubiKey 5.
 
-Whatever the type of smart card you are using, insert it in your computer
+Whichever the type of smart card you are using, insert it in your computer
 and run the `pcsc_scan` application. In my case I got the following:
 
     Reader 0: Alcor Micro AU9560 00 00
@@ -95,7 +85,7 @@ Edit or create the `scdaemon.conf` file in your GnuPG home directory
 (`~/.gnupg/scdaemon.conf by default`), and append the name of the reader you'll
 be using. Since I didn't have the file, I simply did:
 
-	echo "reader-port Yubico Yubi" > ~/.gnupg/scdaemon.conf
+    echo "reader-port Yubico Yubi" > ~/.gnupg/scdaemon.conf
 
 Notice that we don't specify the full text we saw when invoking the `pcsc_scan`
 command. The `CCID 01 00` part of the string is variable and depends on the
@@ -298,6 +288,8 @@ You may now use `quit` or `save`. If you _quit_, your changes in the local keyri
 will be discarded. This is useful if you plan to program other cards with the
 same private key. If you use _save_ instead your local keyring key will be deleted.
 
+:1: https://security.stackexchange.com/questions/165286/how-to-use-multiple-smart-cards-with-gnupg
+
 WARNING: having the same private keys in multiple keys can make sense for example
 if you want to have some _ready to use backup's_, but using the two keys in the
 same machine is less practical than one would wish. When you first use the private
@@ -305,10 +297,8 @@ keys of one of your smart card GnuPG will remember the card you used and you wil
 be asked for it next time the private keys are needed and providing an alternative
 card won't work. You can of course use `gpg --delete-secret-keys`, but probably
 not something you want to be doing if you'll be regularly using both cards
-from the same machine. There are ways to circumvent this, have a look to
-[this Stack Exchange post][multiple-smart-cards-gnupg] if you want to know more.
-
-[multiple-smart-cards-gnupg]: https://security.stackexchange.com/questions/165286/how-to-use-multiple-smart-cards-with-gnupg
+from the same machine. There are ways to circumvent this, as explained in a
+{1}[Stack Overflow post].
 
 For the shake of this article, let's assume you used `save` after you imported
 your private keys into your last smart card.
