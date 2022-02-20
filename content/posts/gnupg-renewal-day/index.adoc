@@ -1,7 +1,7 @@
 ---
 title: "Renewing GPG keys"
 date: 2020-06-26T22:00:00+02:00
-draft: false
+draft: true
 tags: [gpg, ssh, pgp]
 categories: ["Cibersecurity"]
 languages: [en]
