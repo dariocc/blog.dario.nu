@@ -146,5 +146,5 @@ implementation or [this x86 assembler](https://lists.gnu.org/archive/html/bug-ba
 
 But when it comes to wiring-up commands, manipulating strings or quickly setting up CI/CD configuration, Bash 
 kick-asses. Personally, I find I'm a more complete developer knowing Bash that not knowing it, and it feels great to
-not have succumbed to the fear of it's unortodox syntax. You know what they say: if you run away from your fears they
-will eventually grow bigger. 
+not have succumbed to the fear of it's unortodox syntax. You know what they say: _if you run away from your fears they
+will eventually become nightmares_.
