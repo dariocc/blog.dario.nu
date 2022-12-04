@@ -1,0 +1,11 @@
+#!/bin/bash -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_CHORES_DIR="$REPO_ROOT/.repo-chores"
+REPO_CHORES_MD_DIR="$REPO_CHORES_DIR/md"
+
+file="${1:?Missing required positional argument}"
+
+temp_file=$(mktemp)
+cp "$file" "$temp_file" && awk -vBASEDIR="$(dirname "$file")" -f "$REPO_CHORES_MD_DIR/${0##*/}".awk "$file" > "$temp_file"
+cat "$temp_file" > "$file" && rm "$temp_file"
