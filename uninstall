@@ -1,0 +1,17 @@
+#!/bin/bash
+
+SCRIPT_DIR=$(dirname "$0")
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_CHORES_DIR="$REPO_ROOT/.repo-chores"
+HOOKS_DIR="$REPO_ROOT/.git/hooks"
+PRE_COMMIT_HOOK="$HOOKS_DIR"/pre-commit
+HOOK_COMMENT="$(jq -r '.hook_comment' "$SCRIPT_DIR"/properties.json)"
+VIRTUALENV_DIR="$REPO_CHORES_DIR/.virtualenv"
+
+# Remove hook
+if [ -f "$PRE_COMMIT_HOOK" ]; then
+    sed -i '/'"$HOOK_COMMENT"'/d' "$PRE_COMMIT_HOOK"
+fi
+
+# Remove virtual env
+rm -r "$VIRTUALENV_DIR" 2>/dev/null || true

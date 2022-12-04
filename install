@@ -1,0 +1,30 @@
+#!/bin/bash -eu
+
+SCRIPT_DIR=$(dirname "$0")
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_CHORES_DIR="$REPO_ROOT/.repo-chores"
+HOOKS_DIR="$REPO_ROOT/.git/hooks"
+PRE_COMMIT_HOOK="$HOOKS_DIR"/pre-commit
+HOOK_COMMENT="$(jq -r '.hook_comment' "$SCRIPT_DIR"/properties.json)"
+VIRTUALENV_DIR="$REPO_CHORES_DIR/.virtualenv"
+FORMAT_STAGED_SCRIPT="$SCRIPT_DIR"/hooks/pre-commit
+REQUIREMENTS_TXT="$SCRIPT_DIR"/requirements.txt
+
+mkdir -p "$HOOKS_DIR"
+
+"$SCRIPT_DIR"/uninstall
+
+# Install pre-commit hook
+cat > "$PRE_COMMIT_HOOK" <<EOF
+#!/bin/bash
+$FORMAT_STAGED_SCRIPT # $HOOK_COMMENT
+EOF
+chmod u+x "$PRE_COMMIT_HOOK"
+
+# Create python virtualenv with dependencies
+virtualenv -p "$(command -v python3)" "$VIRTUALENV_DIR"
+# shellcheck disable=SC1091
+source "$VIRTUALENV_DIR"/bin/activate
+pip install --upgrade pip
+pip install -r "$REQUIREMENTS_TXT"
+deactivate

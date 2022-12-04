@@ -1,0 +1,58 @@
+#!/bin/bash -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_CHORES_DIR="$REPO_ROOT/.repo-chores"
+REPO_CHORES_GIT_DIR="$REPO_CHORES_DIR/git"
+REPO_CHORES_MD_DIR="$REPO_CHORES_DIR/md"
+VIRTUALENV_DIR="$REPO_CHORES_DIR/.virtualenv"
+
+echo "repo-chores::markdown pre-commit hook"
+echo
+
+STAGED_FILES="$("$REPO_CHORES_GIT_DIR"/diff-list-cached-acmr '*.md')"
+
+if [ -z "$STAGED_FILES" ]; then
+    echo "Nothing to do. There are staged markdown files."
+    echo
+    exit
+fi
+
+lines_in_common() {
+    comm -12 <(echo "$1" | sort) <(echo "$2" | sort)
+}
+
+unstaged_files() {
+    "$REPO_CHORES_GIT_DIR"/diff-list-acmr '*.md'
+}
+
+staged_files_have_unstaged_changes() {
+    test "$(lines_in_common "$STAGED_FILES" "$(unstaged_files)" | wc -c)" -ne 0 
+}
+
+# shellcheck disable=SC1091
+. "$VIRTUALENV_DIR"/bin/activate
+
+if staged_files_have_unstaged_changes; then
+    echo "You have unstaged changes for some of your staged markdown files."
+    echo "Stage your changes before committing to prevent your unstaged changes to be overwritten by this commit hook."
+    exit 1
+fi
+
+echo "Formatting markdown files..."
+echo "$STAGED_FILES" | xargs -I{} "$REPO_CHORES_MD_DIR"/format {}
+echo "...DONE!"
+echo
+
+echo "Embeding code-blocks in markdown files..." 
+echo "$STAGED_FILES" | xargs -I{} "$REPO_CHORES_MD_DIR"/embed-code-blocks {}
+echo "...DONE!"
+echo
+
+if staged_files_have_unstaged_changes; then
+    echo "Staged markdown files have been formatted and code-blocks have been embedded."
+    echo "Verify the changes make sense, stage and attempt to commit again."
+    exit 1
+fi
+
+echo "Hurray! No changes were required on staged files!"
+echo

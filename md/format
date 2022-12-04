@@ -1,0 +1,10 @@
+#!/bin/bash -eu
+
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+REPO_CHORES_CONFIG="$REPO_ROOT/.repo-chores.json"
+
+if [ -f "$REPO_CHORES_CONFIG" ]; then
+    WRAP_WIDTH="$(jq "$REPO_CHORES_CONFIG" '.markdown.wrap-width' 2>/dev/null || true)"
+fi
+
+mdformat --wrap "${WRAP_WIDTH:-80}" "$@"
