@@ -63,11 +63,9 @@ This is because of how [word-splitting] works:
 Word splitting refers to how the shell interprets spaces. In the above example,
 because `file` contains spaces, when the value of `$file` is expanded, it is
 passed as 3 arguments to the `cat` command, which is likely not what you want.
-Unwanted word-splitting due to missing quotes is also a door for \[OS command
-injection\]\[os-command-injection\] which might be dangerous depending on where
-your scripts are executing.
-
-\[os-command-injection\]\[https://owasp.org/www-community/attacks/Command_Injection\]
+Unwanted word-splitting due to missing quotes is also a door for
+[OS command injection][os-command-injection] which might be dangerous depending
+on where your scripts are executing.
 
 The previous example double quoted a variable, but the principle is applicable
 to anything with a `$` sign. Example:
@@ -201,7 +199,7 @@ I found it awkward and difficult to remember at first but I admire its
 conciseness and usefulness. [Parameter expansion][parameter-expansion] is like
 string interpolation on steroids.
 
-This are some of the expressions you should get to know:
+Here there are some examples:
 
 |                     | parameter _set_ and _not null_ | parameter _set_ but _null_ | parameter _unset_ |
 | ------------------- | ------------------------------ | -------------------------- | ----------------- |
@@ -589,6 +587,7 @@ Thank you for making it to the end and see you in the next article!
 - fail_trap example
 - functions that depend on external inputs
 
+[os-command-injection]: https://owasp.org/www-community/attacks/Command_Injection
 [parameter-expansion]: https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
 [the-pragmatic-programmer]: https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition
 [word-splitting]: https://www.gnu.org/software/bash/manual/html_node/Word-Splitting.html
