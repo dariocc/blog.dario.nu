@@ -6,55 +6,47 @@ draft: true
 
 # Good Ol' Bash for CI
 
-Bash, loved by some, hated by others...As for my self, in Facebook terms I'd
-describe my relationship with Bash as _complicated_: I do appreciate its
-conciseness, string manipulation capabilities and ability to directly invoke
-commands, but I also suffer its quirks and struggle sometimes to remember all of
-its syntax, specially after a period of programming in other languages.
+Bash, loved by some, hated by others...As for me I'd describe my relationship
+with Bash as _it's complicated_: I do appreciate its conciseness, string
+manipulation capabilities and ability to directly invoke commands, but I also
+suffer its quirks and struggle sometimes to remember all of its syntax,
+specially after a period of programming in other languages.
 
 But like it or not Bash is _a_ if not the _king_ of CI logic... It's ubiquitous
 and almost any worthy CI system allows embedding bash logic into their CI jobs:
 GitLab CI, GitHub Actions, Bitbucket Pipelines, Jenkins, ... you name it Even if
 in the cases you can choose your shell Bash is often the default.
 
-So rather than _fighting it_, let's fight it. I've summarized some practical
-advise with regards to the use and abuse of Bash logic for CI.
+So rather than _fighting it_, let's fight with it. I've summarized some
+practical advise with regards to the use and abuse of Bash logic for CI.
 
-Before that, let's remember #1 advice of
-[the Pragmatic Programmer][the-pragmatic-programmer] (a book I can highly
-recommend):
+## It only takes a bit of frustration to get started
 
-> _Care about your craft: Why spend your life developing software unless you
-> care about doing it well_.
-
-## Start learning some POSIX shell scripting first if you aren't familiar with the basis
-
-I've been using Linux since 2012, yet I didn't take the trouble of learning
-shell scripting until summer 2017. What pushed me to learn it was that I had
-recently changed job and I started to have to interact more frequently with
-linux-based remote machines running on cloud services and the number of
-automation I needed increased.
+I've been an active Linux since 2012 but my active shell scrip learning didn't
+start until much later. In 2017 after a job change I found myself using shell
+scripting much more often than I had needed until then. I was frustrated by how
+inefficient I was in modifying shell scripts, many of them would only show their
+behavior in CI.
 
 All it took for me was one bored summer day in the
 [Lomma Beach](https://www.tripadvisor.com/Tourism-g1898350-Lomma_Skane_County-Vacations.html),
 a Kindle and a
-[Free ebook](https://www.amazon.com/Shell-Scripting-Automate-Command-Programming-ebook/dp/B015FZAXU6).
+[Free ebook](https://www.amazon.com/Shell-Scripting-Automate-Command-Programming-ebook/dp/B015FZAXU6)
+to get started. It was not about Bash but mostly POSIX shell scripting, which
+turned out to be a good thing, since it reduced the scope of what I needed to
+learn first.
 
-I had written shell scripts before that, but syntax for quotes, variables and
-control-flow statements felt always awkward.
+That simple reading really made a huge difference. For example, I would
+understand that the opening bracket `[` was a _command_ (equivalent to `test`)
+and not punctuation symbol. This opened the door to understand the apparently
+weirdness of `if [ ... ]` expressions.
 
-That simple reading really made a difference. For example, learning that the
-bracket `[` was a _command_ (equivalent to `test`) rather than a language
-construct was the key for me to understand the apparently weirdness of
-`if [ ... ]` expressions.
+So if you feel frustrated for being inefficient at writing shell scripts, I can
+recommend a similar approach to what I did: grab a book, focus on POSIX shell
+and overcome your procrastination :).
 
-Starting this way instead of jumping directly into Bash had the advantage that
-it greatly reduced the amount of concepts I had to learn at once, and in fact
-the book was short enough for me to complete it in the same day I downloaded it.
-
-The way to learn _Bashisms_ has been more on-demand; reading documentation and
-stack overflow answers as needed arouse. In a way I can say I have not yet
-completed my learning.
+With the right foundation in place, you'll be able to learn Bash _on the go_ as
+you want to _do more with less_ and you browse Stack Overflow answers.
 
 ## Double-quote everywhere until you know why you are not double-quoting
 
@@ -113,9 +105,9 @@ do
 done
 ```
 
-But now we used `"`, how come? I'm with you, it feels weird, but that is the way
-it works: `"${colors[@]}"` is the way to expand `colors` elements double quoting
-each element, i.e.:
+But now we used `"`, what? I'm with you, it feels weird, but that is the way it
+works: `"${colors[@]}"` is the way to expand `colors` elements double quoting
+each element, i.e. the above example is equivalent to the following:
 
 ```bash
 for color in "red" "yellow" "green" "antique white"
@@ -124,8 +116,9 @@ do
 done
 ```
 
-My only advise is to stop thinking of _text within quotes_ as _strings_ with
-your C#, Python, Java, C++,... eyes. Learn _the bash way_ to look at it.
+My advise would be to stop thinking of _text within quotes_ as _strings_ with
+your C#, Python, _replace with your language_ eyes and train them to the Bash
+idioms.
 
 ## Use locally scoped variables in functions
 
@@ -159,7 +152,9 @@ say_goodbye "Darío"
 
 The above will say hello to both me and _Mark_ but will wrongly say goodbye to
 _Mark_ instead of me. Of course, it was a programming mistake, but one that it
-is frequent enough so as to want to avoid it.
+is frequent enough so as to want to avoid it. In many cases, this sort of issue
+can be confusing because it makes you think that a `say_goodbye` is actually
+working.
 
 We can use `local` to restrict the scope of a variable:
 
@@ -173,10 +168,12 @@ say_hello() {
 Now the call to `say_goodbye` would return a non zero exit code and, because it
 is the last line of the script, the script will fail.
 
-Using `local` can give you peace of mind.
+Using `local` brings me peace of mind. But again, Bash surprises with some
+_uncommon_ things of doing things: `local` is a _Bash built-in_ (i.e., a command
+that is available if you use Bash) and not a syntax keyword, which means it will
+return 0 or 1. This has implications.
 
-By the way, `local` is a _bash built-in_ not a syntax keyword, which means it
-will return 0 or 1. This has some implications. Consider the following:
+Consider the following code:
 
 ```bash
 set -e
@@ -218,13 +215,11 @@ This are some of the expressions you should get to know:
 If you think that is hard to remember, you are not alone. I use the following
 mnemonics:
 
-- I associate `-` to what happens when `parameter` is _missing_. So \_put `word`
-  if parameter is _missing_.
-- `+` tells about what to do if `parameter` is _present_. The `+` to me
-  indicates presence.
+- I associate `-` to what happens when `parameter` is _missing_.
+- `+` tells me about what to do if `parameter` is _present_.
 - `?` is asking _has it been set_?
-- By default null is considered just _one more value_. With `:` we can alter
-  that behavior to do the opposite.
+- If no other symbol is used, `null` is considered just like any value.
+- With `:` we make `null` be handled as if it was unset.
 
 The forms I use the most are `:-`, `:+` and `:?`, since normally `null` almost
 always represents _unset_ to me.
@@ -243,12 +238,12 @@ OUTPUT_FILE="${GITHUB_OUTPUT:-/dev/stdout}"
 
 __Example 3: Passing optional arguments__
 
-Your scripts provide an abstraction over certain commands. Sometimes inputs to
-your scripts determine which arguments shall be set.
+Often I feel the need to specify flags in commands depending on wether a given
+variable has been assigned.
 
 For example, let's say you have an scrip that takes an input `VERSION` as an
 environment variable and that should determine whether you pass a
-`--version "$VERSION"` argument to a certain command:
+`--version "$VERSION"` argument to the `dotnet` command:
 
 ```bash
    dotnet publish ${VERSION:+--version "$VERSION"} --no-build .
@@ -263,7 +258,9 @@ would've substituted the whole thing by a space.
 Notice that within the expansion expression I did double-quoted `"$VERSION"`.
 This prevents any further word-splitting to occur,
 
-But there is more of it:
+### Other shell expansion expressions
+
+There are more shell expansion features, for example:
 
 - `{#parameter}` for replacing with the length of _parameter_.
 - `{parameter#pattern}`, `{parameter##pattern}`, `{parameter%pattern}` or
@@ -271,8 +268,9 @@ But there is more of it:
   `%%` are very useful to remove extensions from filenames.
 - `{parameter/pattern/string}` for replacing patterns with _string_.
 
-And these are just some examples. This provides very concise syntax for doing
-the typical string manipulations that are involved in CI logic.
+Even if I recognize that memorizing these patterns requires training and will,
+they are really useful for manipulating strings, something that is very common
+in CI logic.
 
 ## There is no shame in not being compliant with POSIX
 
@@ -284,17 +282,215 @@ built-ins.
 
 Bash is the norm and not the exception and if it happens to not be the default
 shell of your OS, I expect you to install it :). I don't care if you prefer
-`Zsh`.
+`Zsh` or other.
 
 This is even truer if we are talking about CI (which we are), where you normally
 have control over what tools are available in the hosts of the runners of your
 CI jobs.
 
-## Strive to write scripts you can manually run
+## Show your manners when calling things
 
-### Accepting input as environment variables
+When command invocations get a bit complex I tend to prefer the following form:
 
-### Accepting input from a CLI
+```bash
+command \
+    --arg-1 arg-1-value \
+    --arg-2 arg-2-value \
+    --arg-4 arg-4-value \
+    --arg-5 arg-5-value \
+    --arg-6 arg-6-value \
+    --arg-7 arg-7-value \
+    --arg-8 arg-8-value
+```
+
+Rather than:
+
+```bash
+command --arg-1 arg-1-value --arg-2 arg-2-value --arg-4 arg-4-value --arg-5 arg-5-value --arg-6 arg-6-value --arg-7 arg-7-value --arg-8 arg-8-value
+```
+
+In this particular example, the benefit might not be that clear, but if those
+`arg-x-value` contain subshell invocations, variables or quotes, it really makes
+a difference. Plus the former is easier to review when you are diffing.
+
+## If possible, make it possible for your scripts to execute from any folder in the repo
+
+It is really annoying to have to _cd_ into a directory just to be able to
+execute a specific script. Normally it is possible to make your scripts work
+independently on where they are invoked,.
+
+Depending on which particular path you are dealing with I'd suggest one of the
+following approaches:
+
+__Path is a sibling or child to the directory of the script__
+
+Define a `SCRIPT_DIR` variable containing the path of the directory of the
+script:
+
+```bash
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")" and define paths
+```
+
+Then make path relative to this directory:
+
+```bash
+FOO_FILE="$SCRIPT_DIR/foo"
+```
+
+__Paths is not a sibling or child of the directory of the script__
+
+Define a `REPO_PATH` variable containing the path of the root directory. If you
+can afford invoking git (for many CI cases, you can):
+
+```bash
+REPO_PATH="$(git rev-parse --show-toplevel)"
+```
+
+If you can't, you may instead define paths relative to `SCRIPT_DIR`.
+
+## Split your script functionality in well named functions
+
+You do it when you write C#, Java or Python, so why don't you do it also in your
+scripts?
+
+Splitting you commands in functions increases drastically readability. Suddenly
+you can understand what the script is supposed to be doing at high level without
+knowing the details.
+
+Compare:
+
+```bash
+git clone --depth 1 ...
+gawk -i inplace -F. '/[0-9]+\./{$NF++;print}' OFS=. .version
+git commit -a -m "Bump version" && git push
+```
+
+Against:
+
+```bash
+clone_repo_shallowly() {
+    git clone --depth 1 ...
+}
+
+bump_patch_version() {
+    gawk -i inplace -F. '/[0-9]+\./{$NF++;print}' OFS=. .version
+}
+
+commit_and_push() {
+    git commit -a -m "Bump version" && git push
+}
+
+clone_repo_shallowly 
+bump_major_version
+commit_and_push
+```
+
+## It's okay to consume external inputs directly in functions
+
+When I started to structure my scripts logic into separated functions I thought
+it would be bad practice to make those function depending on _global variables_
+defined at script level.
+
+```bash
+clone_repo_shallowly() {
+    local repo_url="$1"
+    git clone --depth 1 "$repo_url"
+}
+```
+
+However, experience has taught me that this doesn't really bring much value.
+
+Instead I've started to see my scripts as _modules_ and functions as _member
+variables_ of that module, and that it is okay for a function to be aware of the
+state of the module, similar to how member functions in Object Oriented
+languages are allowed to access member variables.
+
+What I do avoid however is to make functions aware of variables that aren't
+assigned within the script. To me, those represent global state and should
+therefore not be known by the functions.
+
+So for example, I avoid the following:
+
+```bash
+delete_all_files_under_foo() {
+    rm -rf "$GITHUB_WORKSPACE/foo"
+}
+
+delete_all_files_under_foo
+```
+
+By my own convention I would consider functions should not know about
+`$GITHUB_WORKSPACE`. Instead I shall do:
+
+```bash
+delete_all_files_under_foo() {
+    rm -rf "$GITHUB_WORKSPACE/foo"
+}
+
+# Re-assigning the variable to declare our intent of making it part of the script
+GITHUB_WORKSPACE="${GITHUB_WORKSPACE}:?}"  # Re-assingTake the chance to validate that it is set...
+```
+
+Following this practice it is relatively simple to find out which inputs a
+script requires, since
+
+- Input reading and validation is kept in the same section of the script.
+
+## An example
+
+```bash
+#!/bin/bash
+
+SCRIPT_DIR="$(dirname "$(basename "${BASH_SOURCE[0]}")")"
+
+TOOL_GIT="${TOOL_GIT:-git}"
+
+
+# Utility functions
+
+die() {
+    printf "ERROR: %s\n" "$1"
+    exit 1
+}
+
+ssh_to_https_url() {
+    local url="$1"
+}
+
+# Script logic 
+
+clone_repo_shallowly() {
+    "$TOOL_GIT" clone --depth 1 "$(ssh_to_https_url "$REPO_URL")"
+}
+
+do_something_interesting() {
+    # ...
+    echo "Result"
+}
+
+# Input Retrieval and Validation
+
+# Basic null/empty validation is delegated to parameter expansion
+REPO_URL="${REPO_URL:?Missing required REPO env}"
+
+# Do any additional input validation that is required
+if [[ $REPO_URL =~ ^git:// ]];
+then
+    die "REPO_URL needs to match ^git://"
+fi
+
+# Script loic body is delegated
+clone_repo_shallowly || die "Failed to clone repo"
+do_something_interesting || die "Failed to do something interesting"
+```
+
+In Python I used to encapsulate the main body of the script also in a `main()`
+function. I used to do that too in my first Bash scripts. However I do no longer
+see a reason for that, it just increases indent and I don't need each action
+
+## It is possible to write CLIs in Bash, but you might want not to
+
+While it is possible
 
 ```bash
 POSITIONAL=()               # An array to capture positional arguments
@@ -319,41 +515,11 @@ while [[ $# -gt 0 ]]; do    # We still have arguments to process arguments ($#) 
             ;;
     esac
 done
-```
 
 set -- "${POSITIONAL\[@\]}" # restore positional arguments
-
-## Show your manners when invoking commands
-
-Compare this:
-
-```bash
-command \
-    --arg-1 arg-1-value \
-    --arg-2 arg-2-value \
-    --arg-4 arg-4-value \
-    --arg-5 arg-5-value \
-    --arg-6 arg-6-value \
-    --arg-7 arg-7-value \
-    --arg-8 arg-8-value
 ```
 
-To:
-
-```bash
-command --arg-1 arg-1-value --arg-2 arg-2-value --arg-4 arg-4-value --arg-5 arg-5-value --arg-6 arg-6-value --arg-7 arg-7-value --arg-8 arg-8-value
-```
-
-Now thing what would happen if those argument values where long urls, or
-sub-shells invocations...
-
-When a command takes more than 3 arguments, or the value of those arguments is
-an expression `$(...)` the first version is much more readable than the second.
-The price to pay: 2-3 keystrokes per argument.
-
-This makes life simpler also when diffing both split and inline views.
-
-### If you feel the need of writing a CLI utility: look somewhere else
+However, a CLI might provide for a better user experience if a given script.
 
 It is possible to process arguments. I've done it, and every time I've hated it.
 
@@ -366,12 +532,10 @@ script _wrapper_.
 
 In my opinion, CI logic that takes more
 
-What is the magical number? I'll say: 5
-
-## Is this for everyone?
+## It's okay
 
 I believe every developer could benefit of learning Bash and be able to
-understand most of it's idioms. It isn't that hard if you put some time in it.
+understand most of it's idioms.
 
 In today's world of fast-paced development it is more often than not to see
 programmers that avoid Bash at all costs, which is a pity because Bash has
@@ -402,6 +566,28 @@ my initial reluctancy towards this good old language.
 ## Use shellcheck
 
 Also talk about actionlist.
+
+## Closing
+
+I'd like to close with a quote from one of my favorite programming books
+[the Pragmatic Programmer][the-pragmatic-programmer]:
+
+> _Care about your craft: Why spend your life developing software unless you
+> care about doing it well_.
+
+Which I will rewrite for the occasion:
+
+> _Care about your Bash: Why spend your days writing CI logic in Bash unless you
+> care about doing it well_.
+
+Thank you for making it to the end and see you in the next article!
+
+<!-- References -->
+
+## TODO
+
+- fail_trap example
+- functions that depend on external inputs
 
 [parameter-expansion]: https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
 [the-pragmatic-programmer]: https://pragprog.com/titles/tpp20/the-pragmatic-programmer-20th-anniversary-edition
