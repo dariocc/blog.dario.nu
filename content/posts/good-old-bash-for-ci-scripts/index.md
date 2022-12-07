@@ -322,8 +322,9 @@ command --arg-1 arg-1-value --arg-2 arg-2-value --arg-4 arg-4-value --arg-5 arg-
 ```
 
 In this particular example, the benefit might not be that clear, but if those
-`arg-x-value` contain subshell invocations, variables or quotes, it really makes
-a difference. Plus the former is easier to review when you are diffing.
+`arg-x-value` contain command expansions, variables or several pair of quotes,
+it really makes a difference. Plus the former is easier to review when you are
+diffing.
 
 ## If possible, make it possible for your scripts to execute from any folder in the repo
 
@@ -340,7 +341,7 @@ Define a `SCRIPT_DIR` variable containing the path of the directory of the
 script:
 
 ```bash
-SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")" and define paths
+SCRIPT_DIR="$(dirname "${BASH_SOURCE[0]}")"
 ```
 
 Then make path relative to this directory:
@@ -358,7 +359,10 @@ can afford invoking git (for many CI cases, you can):
 REPO_PATH="$(git rev-parse --show-toplevel)"
 ```
 
-If you can't, you may instead define paths relative to `SCRIPT_DIR`.
+If you can't, you may instead define paths relative to `SCRIPT_DIR`. With the
+first approach, your script will break if the file or path you are referencing
+changes. With the second approach you are also sensitive to changes to the
+directory of the script itself.
 
 ## Split your script functionality in well named functions
 
