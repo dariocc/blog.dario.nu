@@ -1,52 +1,46 @@
 ---
-title: good-old-bash-for-ci-scripts
+title: good-old-bash-still-useful-for-ci
 date: 2022-12-06
 draft: true
 ---
 
-# Good Ol' Bash for CI
+# Good Ol' Bash, still useful for CI
 
-Bash, loved by some, hated by others...As for me I'd describe my relationship
-with Bash as _it's complicated_: I do appreciate its conciseness, string
-manipulation capabilities and ability to directly invoke commands, but I also
-suffer its quirks and struggle sometimes to remember all of its syntax,
-specially after a period of programming in other languages.
+Bash, loved by some, hated by others...As for me I'd say _it's complicated_: I
+have use it enough to learn to appreciate its conciseness, string manipulation
+capabilities and ability to directly invoke commands, but I've also struggled
+its quirks and way of doing things different than other from other languages I
+use to write scripts.
 
-But like it or not Bash is _a_ if not the _king_ of CI logic... It's ubiquitous
-and almost any worthy CI system allows embedding bash logic into their CI jobs:
-GitLab CI, GitHub Actions, Bitbucket Pipelines, Jenkins, ... you name it Even if
-in the cases you can choose your shell Bash is often the default.
+But like it or not Bash is a king if not the _king_ when it comes to CI logic...
+It's ubiquitous and almost any worthy CI system will allow embedding bash logic
+into their job definitions, often making it the default choice for jobs running
+in Linux.
 
-So rather than _fighting it_, let's fight with it. I've summarized some
-practical advise with regards to the use and abuse of Bash logic for CI.
+If you happen to touch Bash in your daily ops but still feel uncomfortable with
+it, keep reading: I've summarized some practical advice that hopefully will help
+you gain more confidence with it.
 
 ## It only takes a bit of frustration to get started
 
 I've been an active Linux since 2012 but my active shell scrip learning didn't
-start until much later. In 2017 after a job change I found myself using shell
+start until much later. In 2018 after a job change I found myself using shell
 scripting much more often than I had needed until then. I was frustrated by how
 inefficient I was in modifying shell scripts, many of them would only show their
 behavior in CI.
 
-All it took for me was one bored summer day in the
+Then one bored summer of the same year, vacationing in
 [Lomma Beach](https://www.tripadvisor.com/Tourism-g1898350-Lomma_Skane_County-Vacations.html),
-a Kindle and a
-[Free ebook](https://www.amazon.com/Shell-Scripting-Automate-Command-Programming-ebook/dp/B015FZAXU6)
-to get started. It was not about Bash but mostly POSIX shell scripting, which
-turned out to be a good thing, since it reduced the scope of what I needed to
-learn first.
+I picked up my Kindle and downloaded the free
+ebook[Shell Scripting, How to Automate Command Line Tasks Using Bash Scripting and Shell Programming](https://www.amazon.com/Shell-Scripting-Automate-Command-Programming-ebook/dp/B015FZAXU6)
 
-That simple reading really made a huge difference. For example, I would
-understand that the opening bracket `[` was a _command_ (equivalent to `test`)
-and not punctuation symbol. This opened the door to understand the apparently
-weirdness of `if [ ... ]` expressions.
+Short book, free, straight to the point. It was eye opener and I would quickly
+learn things such as the opening bracket `[` was a _command_ (equivalent to
+`test`) and not punctuation symbol. No longer I would struggle to interpret
+`if [ ... ]` constructions.
 
-So if you feel frustrated for being inefficient at writing shell scripts, I can
-recommend a similar approach to what I did: grab a book, focus on POSIX shell
-and overcome your procrastination :).
-
-With the right foundation in place, you'll be able to learn Bash _on the go_ as
-you want to _do more with less_ and you browse Stack Overflow answers.
+This isn't really an advice, is it? Well I guess my point is: are you frustrated
+enough? Do you feel unproductive? Then it's about time to change that.
 
 ## Double-quote everywhere until you know why you are not double-quoting
 
@@ -67,18 +61,27 @@ Unwanted word-splitting due to missing quotes is also a door for
 [OS command injection][os-command-injection] which might be dangerous depending
 on where your scripts are executing.
 
-The previous example double quoted a variable, but the principle is applicable
-to anything with a `$` sign. Example:
+Here there is a more confusing example:
 
 ```bash
 foo="$(cat "$file")"
 ```
 
-And while that looks weird
+It is confusing because it seems we have a _string_, then a variable and then
+another string. But this is reading bash code as if it was another programming
+language. It is not.
 
-So the easy thing to remember is: __always double quote when you see a $ sign__.
+Quotation, and in particular double quotes denote that _literals characters
+shall be preserved_ except when certain symbols such as `$` appear. `$(...)` and
+`$file` are _expansions_ and expansions have a well-defined
+[order of precedence](https://pubs.opengroup.org/onlinepubs/9699919799/utilities/V3_chap02.html#tag_18_06).
 
-Once you learn that, you can learn _when to not use it_:
+The way I imagine this is that the _inner quotes_ have less precedence than the
+`$(..)` and therefore `$file` needs to be quoted if I want spaces to be
+preserved when passed to `cat`.
+
+Once you've taught yourself to double-quote everything you may start relaxing
+the policy when you want word splitting to happen:
 
 ```bash
 colors="red yelloy green"
@@ -88,8 +91,8 @@ do
 done
 ```
 
-If we would've used `$colors`, the for loop would have iterated only over one
-parameter.
+If we would've written instead `"$colors"`, the for loop would have iterated
+only over one parameter.
 
 You might be wondering if it would be possible to have a collection of strings
 that may contain spaces such as _antique white_. It is possible, for example by
@@ -114,9 +117,16 @@ do
 done
 ```
 
+This _magic_ is similar to the expansion `$@`, that will expand arguments passed
+ot the script as if they were passed double quoted, as opposed to `$*`.
+
 My advise would be to stop thinking of _text within quotes_ as _strings_ with
-your C#, Python, _replace with your language_ eyes and train them to the Bash
-idioms.
+your C#, Python, and start thinking in terms of _expansions_ and how they work
+in Bash.
+
+Running [shellcheck](https://www.shellcheck.net/) over your scripts is a great
+way to improve your shell knowledge without having to remember all the rules,
+since it will remind you to double quote when expanding variables and commands.
 
 ## Use locally scoped variables in functions
 
@@ -191,7 +201,9 @@ Again, `local` is a built-in command and the exit code of this command is always
 `0`, regardless of what happened on the right side.
 
 Therefore, it is sometimes recommended to separate _local variable declaration_
-from _variable assignment_.
+from _variable assignment_. I tend to apply this advise only when dealing with
+expressions that may fail, as I dislike the extra verbosity that it is
+introduced by doing it indiscriminately.
 
 ### Learn to love parameter expansion
 
@@ -256,9 +268,7 @@ would've substituted the whole thing by a space.
 Notice that within the expansion expression I did double-quoted `"$VERSION"`.
 This prevents any further word-splitting to occur,
 
-### Other shell expansion expressions
-
-There are more shell expansion features, for example:
+There are more shell expansion features that you may want to learn, for example:
 
 - `{#parameter}` for replacing with the length of _parameter_.
 - `{parameter#pattern}`, `{parameter##pattern}`, `{parameter%pattern}` or
@@ -267,8 +277,12 @@ There are more shell expansion features, for example:
 - `{parameter/pattern/string}` for replacing patterns with _string_.
 
 Even if I recognize that memorizing these patterns requires training and will,
-they are really useful for manipulating strings, something that is very common
-in CI logic.
+they are really useful for manipulating strings, something that is very common.
+
+My advice is to find some mnemonics that work for you. For example the
+`{parameter%pattern}` is easy to remember by imagining of holding scissors with
+the right hand and a stripe on your left hand and the pattern being cut out the
+stripe and falling off the right side.
 
 ## There is no shame in not being compliant with POSIX
 
@@ -529,6 +543,12 @@ _accidentally set variables_. To avoid that, always set ALL variables from your
 script _wrapper_.
 
 In my opinion, CI logic that takes more
+
+## Don't suffix `.sh` or `.bash` extensions
+
+I've seen this _a lot_. In unix, _executable_ code is supposed
+
+Decent text editors will correctly apply syntax hilighting...
 
 ## It's okay
 
