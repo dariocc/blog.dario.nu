@@ -6,8 +6,8 @@ tags: [linux, bash, devops, CI]
 languages: [en]
 ---
 
-Bash, loved by some, hated by others...As for me I'd say _it's complicated_: I
-have use it enough to learn to appreciate its conciseness, string manipulation
+Bash, loved by some, hated by others; as for me: it's complicated... I have used
+it enough long to learn to appreciate its conciseness, string manipulation
 capabilities and ability to directly invoke commands, but I've also struggled
 its quirks and way of doing things different than other from other languages I
 use to write scripts.
@@ -638,17 +638,16 @@ For example, in GitHub Actions a `foo-a-bar` action may look like this:
 # foo-a-bar/action.yml
 name: Foo a bar
 inputs:
-    foo:
-        description: A foo
-        required: true
-    bar:
-        description: A bar
-        required: true
+  foo:
+    description: A foo
+    required: true
+  bar:
+    description: A bar
+    required: true
 runs:
   using: composite
   steps:
-    - run: |
-        .github/actions/foo-a-bar-action/foo-a-bar
+    - run: .github/actions/foo-a-bar-action/foo-a-bar
       shell: bash
       env:
         FOO: ${{ inputs.foo }}
@@ -702,12 +701,12 @@ I'd like to close with a quote from one of my favorite programming books
 [the Pragmatic Programmer][the-pragmatic-programmer]:
 
 > _Care about your craft: Why spend your life developing software unless you
-> care about doing it well_.
+> care about doing it well?_.
 
 Which I will rewrite for the occasion:
 
-> _Care about your Bash: Why spend your days writing CI logic in Bash unless you
-> care about doing it well_.
+> __Care about your Bash: Why spend your days writing scripts nless you care
+> about doing it well?__.
 
 Thank you for making it to the end and see you in the next article!
 
