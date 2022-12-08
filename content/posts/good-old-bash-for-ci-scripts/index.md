@@ -1,6 +1,6 @@
 ---
-title: good-old-bash-for-ci-scripts
-date: 2022-12-09
+title: Good Old Bash for CI scripts
+date: 2022-12-08
 draft: false
 tags: [linux bash devops CI]
 categories: [linux]
