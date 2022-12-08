@@ -7,8 +7,6 @@ categories: [linux]
 languages: [en]
 ---
 
-# Good old Bash for CI scripts
-
 Bash, loved by some, hated by others...As for me I'd say _it's complicated_: I
 have use it enough to learn to appreciate its conciseness, string manipulation
 capabilities and ability to directly invoke commands, but I've also struggled
