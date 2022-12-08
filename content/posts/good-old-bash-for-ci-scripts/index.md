@@ -1,10 +1,10 @@
 ---
-title: good-old-bash-still-useful-for-ci
-date: 2022-12-06
-draft: true
+title: good-old-bash-for-ci-scripts
+date: 2022-12-09
+draft: false
 ---
 
-# Good Ol' Bash, still useful for CI
+# Good old Bash for CI scripts
 
 Bash, loved by some, hated by others...As for me I'd say _it's complicated_: I
 have use it enough to learn to appreciate its conciseness, string manipulation
@@ -689,42 +689,14 @@ IDEs and code editors are smart enough to figure out the language anyway.
 The only case where I think it is justified to use an extension is when you
 create shell code that is intended to be _sourced_ and not to be executed.
 
-## It's okay to look elsewhere!
-
-I believe every developer could benefit of learning Bash and be able to
-understand most of it's idioms.
-
-In today's world of fast-paced development it is more often than not to see
-programmers that avoid Bash at all costs, which is a pity because Bash has
-something to offer to them: it is king in sysadmins's land and I think it has
-it's space as _plumbing code_ for CI/CD scripting. It allows for code brevity,
-rapid prototyping and expressivity. But
-
-I know what they say, that code is _read far more often than it's written_, and
-I agree: if your CI logic get complex, it might be time to adopt a different
-language.
-
-If you have the luxury of being able to _impose_ a language for CI, there might
-be other options that are good: `Python` and `Go` come to my mind. I happen to
-work in a team with a mixed skill-set and not everyone likes Python or is
-competent in `Go`. We'd need an authoritative decision to pick _one to rule them
-all_ if that was to happen.
-
-I get the feeling that not everyone is comfortable with Bash either, at least
-based on the scripts I read. But for some strange reason, it seems acceptable to
-write _bash for CI_ even when not everyone in a team might feel comfortable with
-it.
-
-But when it comes to wiring-up commands, manipulating strings or quickly setting
-up CI/CD configuration, Bash kick-asses. Personally, I find I'm a more complete
-developer knowing Bash that not knowing it, and it feels great to have overcame
-my initial reluctancy towards this good old language.
-
-## Use shellcheck
-
-Also talk about actionlist.
-
 ## Closing
+
+Bash may be for you or not, but it definitely has something to offer.
+
+If you happen to be in the position to make authoritative decisions for your
+team, choosing a different language to implement CI logic might be possible, and
+even a _good thing_. Still you'll hit many situations where Bash knowledge is
+useful.
 
 I'd like to close with a quote from one of my favorite programming books
 [the Pragmatic Programmer][the-pragmatic-programmer]:
