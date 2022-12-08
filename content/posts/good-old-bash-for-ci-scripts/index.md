@@ -401,6 +401,11 @@ bump_major_version
 commit_and_push
 ```
 
+Now even a person that doesn't know `gawk` knows what is going on and will be
+less scared to go and fix things when something breaks.
+
+Save yourself from being _that guy_ that is called when that job fails.
+
 ## It's okay to consume external inputs directly in functions
 
 When I started to structure my scripts logic into separated functions I thought
@@ -428,17 +433,26 @@ therefore not be known by the functions.
 So for example, I avoid the following:
 
 ```bash
+#!/bin/bash
+
 delete_all_files_under_foo() {
     rm -rf "$GITHUB_WORKSPACE/foo"
 }
 
 delete_all_files_under_foo
+
+# End of the script
 ```
 
-By my own convention I would consider functions should not know about
-`$GITHUB_WORKSPACE`. Instead I shall do:
+My self-imposed convention tells me that globally defined variables accessed in
+functions shall be at least being defined once within the _body_ of the script.
+By _body_ I mean here the code outside functions (if there is a name to call
+that, please let me know).
+
+So the following would be ok:
 
 ```bash
+#!/bin/bash
 delete_all_files_under_foo() {
     rm -rf "$GITHUB_WORKSPACE/foo"
 }
@@ -447,36 +461,106 @@ delete_all_files_under_foo() {
 GITHUB_WORKSPACE="${GITHUB_WORKSPACE}:?}"  # Re-assingTake the chance to validate that it is set...
 ```
 
-Following this practice it is relatively simple to find out which inputs a
-script requires, since
+If it makes sense, I may even take the change to use script-specific naming,
+instead of depending on specific CI naming. So for example `REPO_ROOT`. This
+makes me feel better if I run the script locally, since `GITHUB_WORKSPACE`
+doesn't really make sense in that context.
 
-- Input reading and validation is kept in the same section of the script.
+This might not always be practical. Sometimes your script is actually bound to
+your underlying CI system and it is okay to name things in the same terms. I
+think the key is to think whether you can imagine running that script locally,
+even if it is to _try it out_. If you can, then it is good to add the additional
+semantic abstraction.
 
-## An example
+Independently of the name you choose, one great advantage of following the rule
+of _no global variable shall be accessed from a function unless it has been
+assigned in the script body_ is that suddenly knowing what inputs your script
+takes is much easier, because every requirement is concentrated in the same
+section of the script.
+
+## Encapsulate failure exit routines
+
+All my scripts have a _die_ function:
 
 ```bash
-#!/bin/bash
-
-SCRIPT_DIR="$(dirname "$(basename "${BASH_SOURCE[0]}")")"
-
-TOOL_GIT="${TOOL_GIT:-git}"
-
-
-# Utility functions
-
 die() {
     printf "ERROR: %s\n" "$1"
     exit 1
 }
+```
 
-ssh_to_https_url() {
-    local url="$1"
+Which then I use as:
+
+```bash
+do_something || die "I couldn't do what you asked"
+do_something_else || die "Sorry but this operation isn't available"
+```
+
+This is to me much more expressive than echoing and exiting:
+
+```bash
+if do_something; then echo "Error" && exit 1; fi
+```
+
+## Watch out for operator precedence
+
+Note also that operator precedence works a bit different in Bash than in other
+languages. Let's recall the example in the previous section:
+
+```bash
+if do_something; then echo "Error" && exit 1; fi
+```
+
+You might be thinking of rewriting it like this
+
+```bash
+do_something || echo "Error" && exit 1
+```
+
+You'd be surprised that this exits in any case: `||` and `&&` have the same
+precedence here, and left-to-right precedence rule takes place:
+
+- If `do_something` returns `0` exit code, `echo "Error"` is short-circuited,
+  and then the right operand of the `&&` operator is evaluated.
+
+This is unlike other languages, where _logical AND_ have greater precedence than
+_logical OR_.
+
+To complicate things even further, operator precedence is context-dependent. For
+example, inside `[[...]]` or when passed to the `[` command, `&&` will indeed
+have greater precedence and behave more like you would expect.
+
+The solution is to either use parenthesis to fix precedence or to stay away from
+these one-liners. I normally choose the latter because I don't trust my ability
+to remember these rules every time.
+
+## Structuring your scripts
+
+It takes time to develop a _script style_ that you are comfortable with. Through
+multiple iterations I've ended up with the following:
+
+```bash
+#!/bin/bash
+
+# Constants and external tools seams
+SCRIPT_DIR="$(dirname "$(basename "${BASH_SOURCE[0]}")")"
+# I like to add seams to tools I depend on in the script
+TOOL_GIT="${TOOL_GIT:-git}"
+
+# Basic null/empty input validation is delegated to parameter expansion
+REPO_URL="${REPO_URL:?Missing required REPO env}"
+
+die() {
+    printf "ERROR: %s\n" "$1" 1>&2 # Error messages should go to stdout
+    exit 1
 }
 
-# Script logic 
+# ... And warning(), info(), debug() if I'm going to be having that sort of output
+
+# Script logic
 
 clone_repo_shallowly() {
-    "$TOOL_GIT" clone --depth 1 "$(ssh_to_https_url "$REPO_URL")"
+    "$TOOL_GIT" clone --depth 1 "$REPO_URL"
 }
 
 do_something_interesting() {
@@ -484,29 +568,36 @@ do_something_interesting() {
     echo "Result"
 }
 
-# Input Retrieval and Validation
-
-# Basic null/empty validation is delegated to parameter expansion
-REPO_URL="${REPO_URL:?Missing required REPO env}"
-
-# Do any additional input validation that is required
+# More complex input validation appears in the 'body' of the script
 if [[ $REPO_URL =~ ^git:// ]];
 then
     die "REPO_URL needs to match ^git://"
 fi
 
-# Script loic body is delegated
+# Finally, the program flow
 clone_repo_shallowly || die "Failed to clone repo"
 do_something_interesting || die "Failed to do something interesting"
 ```
 
-In Python I used to encapsulate the main body of the script also in a `main()`
-function. I used to do that too in my first Bash scripts. However I do no longer
-see a reason for that, it just increases indent and I don't need each action
+This way I can:
 
-## It is possible to write CLIs in Bash, but you might want not to
+- Look at the top of the script to know what environment variables it depends
+  son
+- Look at the bottom of the script to get an overview of the script logic,
+  without being concerned about the specific implementation details.
 
-While it is possible
+This style is simple enough to remember and it puts you in a better place for
+making it unit-testable, should that be something you want to consider. Script
+testability is a wider topic and I hope to cover it in future posts.
+
+## It's okay to use environment variables to accept input
+
+During a long time I was convinced that _programs should be explicit about the
+inputs they take_ and _not depend on environment variables_ as input.
+
+I would therefore put command line interface on top of my scripts. For example.
+this is one of my favorite ways of building a simple CLI without depending on
+commands such as `getops`:
 
 ```bash
 POSITIONAL=()               # An array to capture positional arguments
@@ -535,26 +626,70 @@ done
 set -- "${POSITIONAL\[@\]}" # restore positional arguments
 ```
 
-However, a CLI might provide for a better user experience if a given script.
+While a CLI might provide for a better user experience, it is rarely useful for
+CI purposes and it can even be detrimental. To begin with, it requires a ton of
+code. Code which is often difficult to understand by those less familiar with
+Bash But also because CI platforms make it often easy to assign values to
+environment variables, so if you use them as inputs, things get more structured.
 
-It is possible to process arguments. I've done it, and every time I've hated it.
+For example, in GitHub Actions a `foo-a-bar` action may look like this:
 
-I've learned to accept _environment variables_ as the way to pass information to
-CI scripts.
+```yaml
+# foo-a-bar/action.yml
+name: Foo a bar
+inputs:
+    foo:
+        description: A foo
+        required: true
+    bar:
+        description: A bar
+        required: true
+runs:
+  using: composite
+  steps:
+    - run: |
+        .github/actions/foo-a-bar-action/foo-a-bar
+      shell: bash
+      env:
+        FOO: ${{ inputs.foo }}
+        BAR: ${{ inputs.bar }}
+```
 
-The only _but_ I have about this approach is that I can technically end-up with
-_accidentally set variables_. To avoid that, always set ALL variables from your
-script _wrapper_.
+Having a CLI in the `foo-a-bar` script would make the inputs to appear within
+the _run_ block:
 
-In my opinion, CI logic that takes more
+```yaml
+    - run: |
+        .github/actions/foo-a-bar-action/foo-a-bar --foo ${{ inputs.foo }} --bar ${{ inputs.bar }}
+```
 
-## Don't suffix `.sh` or `.bash` extensions
+Aesthetically the first example offers a bit more of structure. Environment
+variables are also easier to work with when scripts represent the entry point of
+Docker images.
 
-I've seen this _a lot_. In unix, _executable_ code is supposed
+So my current thinking is that the additional effort required to design a CLI
+only makes sense when you expect your scripts to be regularly invoked by humans
+and not primarily by CI jobs, for those situations, you might actually want to
+consider other programming languages that offer better argument parsing
+experiences.
 
-Decent text editors will correctly apply syntax hilighting...
+If you want to stick to Bash, [autogenerating](https://autobash.dev) CLIs might
+be an interesting option instead of manually writing it.
 
-## It's okay
+## Your scripts files don't need file extensions
+
+I see this a lot, likely due to the influence Windows has had in our minds, but
+in Unix land _executables are expected to not have any extension_. That is the
+way to visually distinguish if a file is executable or not without checking out
+its permissions. And you know what they say: _when in Rome, do as the roman do_:
+`build-and-run` and __not__ `build-and-run.bash`.
+
+IDEs and code editors are smart enough to figure out the language anyway.
+
+The only case where I think it is justified to use an extension is when you
+create shell code that is intended to be _sourced_ and not to be executed.
+
+## It's okay to look elsewhere!
 
 I believe every developer could benefit of learning Bash and be able to
 understand most of it's idioms.
@@ -605,11 +740,6 @@ Which I will rewrite for the occasion:
 Thank you for making it to the end and see you in the next article!
 
 <!-- References -->
-
-## TODO
-
-- fail_trap example
-- functions that depend on external inputs
 
 [os-command-injection]: https://owasp.org/www-community/attacks/Command_Injection
 [parameter-expansion]: https://www.gnu.org/software/bash/manual/html_node/Shell-Parameter-Expansion.html
