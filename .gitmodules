@@ -1,6 +1,3 @@
-[submodule "themes/hugotex"]
-	path = themes/hugotex
-	url = https://github.com/7ma7X/HugoTeX
 [submodule "themes/smol"]
 	path = themes/smol
-	url = https://github.com/colorchestra/smol
+	url = git@github.com:dariocc/smol
