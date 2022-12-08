@@ -5,7 +5,6 @@ DefaultContentLanguage = "en-us"
 
 [taxonomies]
 tag = "tags"
-category = "categories"
 language = "languages"
 
 [params]
@@ -19,16 +18,10 @@ url = "/posts/"
 weight = 1
 
 [[menu.main]]
-identifier = "categories"
-name = "Categories"
-url = "/categories/"
-weight = 2
-
-[[menu.main]]
 identifier = "tags"
 name = "Tags"
 url = "/tags/"
-weight = 3
+weight = 2
 
 [[menu.footer]]
 name = "Bitbucket"

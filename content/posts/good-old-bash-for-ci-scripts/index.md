@@ -2,8 +2,7 @@
 title: Good Old Bash for CI scripts
 date: 2022-12-08
 draft: false
-tags: [linux bash devops CI]
-categories: [linux]
+tags: [linux, bash, devops, CI]
 languages: [en]
 ---
 

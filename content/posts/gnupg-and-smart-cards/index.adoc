@@ -3,7 +3,6 @@ title: "Using GnuPG with a smart card"
 date: 2020-09-20T22:00:00+02:00
 draft: false
 tags: [gpg, ssh, pgp]
-categories: ["Cibersecurity"]
 languages: [en]
 ---
 

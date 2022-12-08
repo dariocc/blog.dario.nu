@@ -2,8 +2,7 @@
 title: "Some useful tree arguments"
 date: 2020-10-01T16:51:39+02:00
 draft: false
-tags: [linux cli]
-categories: ["linux"]
+tags: [linux, cli]
 languages: [en]
 ---
 
