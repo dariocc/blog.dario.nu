@@ -4,6 +4,7 @@ date: 2022-12-08
 draft: false
 tags: [linux, bash, devops, CI]
 languages: [en]
+discussionId: 4
 ---
 
 Bash, loved by some, hated by others; as for me: it's complicated... I have used
