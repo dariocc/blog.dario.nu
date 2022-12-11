@@ -22,6 +22,10 @@ If you happen to touch Bash in your daily ops but still feel uncomfortable with
 it, keep reading: I've summarized some practical advice that hopefully will help
 you gain more confidence with it.
 
+Before we begin, a word of caution: this post is not advocating for or against
+using Bash in your CI logic but rather assuming you are using it or want to use
+it and hoping to make that a better experience.
+
 ## It only takes a bit of frustration to get started
 
 I've been an active Linux user since 2012 but my active shell scrip learning
