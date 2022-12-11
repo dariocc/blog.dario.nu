@@ -24,11 +24,11 @@ you gain more confidence with it.
 
 ## It only takes a bit of frustration to get started
 
-I've been an active Linux since 2012 but my active shell scrip learning didn't
-start until much later. In 2018 after a job change I found myself using shell
-scripting much more often than I had needed until then. I was frustrated by how
-inefficient I was in modifying shell scripts, many of them would only show their
-behavior in CI.
+I've been an active Linux user since 2012 but my active shell scrip learning
+didn't start until much later. In 2018 after a job change I found myself using
+shell scripting much more often than I had needed until then. I was frustrated
+by how inefficient I was in modifying shell scripts, many of them would only
+show their behavior in CI.
 
 Then one bored summer of the same year, vacationing in
 [Lomma Beach](https://www.tripadvisor.com/Tourism-g1898350-Lomma_Skane_County-Vacations.html),
@@ -695,19 +695,19 @@ Bash may be for you or not, but it definitely has something to offer.
 
 If you happen to be in the position to make authoritative decisions for your
 team, choosing a different language to implement CI logic might be possible, and
-even a _good thing_. Still you'll hit many situations where Bash knowledge is
-useful.
+even a _good thing_ (Bash is in general, harder to test). Still you'll hit many
+situations where Bash knowledge is useful.
 
 I'd like to close with a quote from one of my favorite programming books
 [the Pragmatic Programmer][the-pragmatic-programmer]:
 
 > _Care about your craft: Why spend your life developing software unless you
-> care about doing it well?_.
+> care about doing it well?_
 
 Which I will rewrite for the occasion:
 
-> __Care about your Bash: Why spend your days writing scripts nless you care
-> about doing it well?__.
+> __Care about your Bash: Why spend your days writing scripts unless you care
+> about doing it well?__
 
 Thank you for making it to the end and see you in the next article!
 
