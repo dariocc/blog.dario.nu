@@ -628,7 +628,7 @@ while [[ $# -gt 0 ]]; do    # We still have arguments to process arguments ($#) 
     esac
 done
 
-set -- "${POSITIONAL\[@\]}" # restore positional arguments
+set -- "${POSITIONAL[@]}" # restore positional arguments
 ```
 
 While a CLI might provide for a better user experience, it is rarely useful for
